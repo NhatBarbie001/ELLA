@@ -1,0 +1,15 @@
+# Ignore the dataset directory
+**/datasets/
+**/data/
+**/dataset/
+
+# Ignore all .sh files
+*.sh
+*.txt
+VFN/
+
+# Ignore all __pycache__ subdirectories
+**/__pycache__/
+
+*.pack
+*.idx
