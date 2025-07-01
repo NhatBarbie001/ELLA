@@ -1,4 +1,3 @@
-%%writefile /kaggle/working/DELTA/methods/mrfa.py
 
 import torch
 import torch.nn.functional as F

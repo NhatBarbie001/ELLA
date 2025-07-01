@@ -1,4 +1,3 @@
-%%writefile /kaggle/working/DELTA/agents/DELTA.py
 
 import torch
 from torch.utils import data
