@@ -75,7 +75,7 @@ class ContinualLearner(torch.nn.Module, metaclass=abc.ABCMeta):
                         batch_x = maybe_cuda(batch_x, self.cuda)
                         batch_y = maybe_cuda(batch_y, self.cuda)
                         logits = self.model.forward(batch_x)
-                        if self.params.agent == 'SCR' or self.params.agent =='DELTA':
+                        if self.params.agent == 'SCR' or self.params.agent =='DELTA' or self.params.agent =='ELLA':
                             logits = torch.cat([self.model.forward(batch_x).unsqueeze(1),
                                                   self.model.forward(self.transform(batch_x)).unsqueeze(1)], dim=1)
                         loss = self.criterion(logits, batch_y)
@@ -106,7 +106,7 @@ class ContinualLearner(torch.nn.Module, metaclass=abc.ABCMeta):
             for i, lbl in enumerate(labels):
                 labels[i] = self.lbl_inv_map[lbl.item()]
             return F.nll_loss(ss, labels)
-        elif self.params.agent in ['SCR', 'SCP', 'DELTA']:
+        elif self.params.agent in ['SCR', 'SCP', 'DELTA', 'ELLA']:
             SC = SupConLoss(temperature=self.params.temp)
             return SC(logits, labels)
         else:
@@ -118,7 +118,7 @@ class ContinualLearner(torch.nn.Module, metaclass=abc.ABCMeta):
     def evaluate(self, test_loaders):
         self.model.eval()
         acc_array = np.zeros(len(test_loaders))
-        if self.params.trick['ncm_trick'] or self.params.agent in ['ICARL', 'SCR', 'SCP','DELTA']:
+        if self.params.trick['ncm_trick'] or self.params.agent in ['ICARL', 'SCR', 'SCP','DELTA', 'ELLA']:
             exemplar_means = {}
             cls_exemplar = {cls: [] for cls in self.old_labels}
             buffer_filled = self.buffer.current_index
@@ -156,7 +156,7 @@ class ContinualLearner(torch.nn.Module, metaclass=abc.ABCMeta):
                 for i, (batch_x, batch_y) in enumerate(test_loader):
                     batch_x = maybe_cuda(batch_x, self.cuda)
                     batch_y = maybe_cuda(batch_y, self.cuda)
-                    if self.params.trick['ncm_trick'] or self.params.agent in ['ICARL', 'SCR', 'SCP','DELTA']:
+                    if self.params.trick['ncm_trick'] or self.params.agent in ['ICARL', 'SCR', 'SCP','DELTA', 'ELLA']:
                         feature = self.model.features(batch_x)  # (batch_size, feature_size
                         for j in range(feature.size(0)):  # Normalize
                             feature.data[j] = feature.data[j] / feature.data[j].norm()
