@@ -1,4 +1,3 @@
-
 import torch
 from torch.utils import data
 from utils.buffer.buffer import Buffer
@@ -49,8 +48,14 @@ class ELLA(ContinualLearner):
 
         self.perturb_p = np.full(5, params.ELLA_beta)
         self.ELLA_alpha = params.ELLA_alpha
-
-        self.convnet_type = 'resnet18'
+        # convnet_type is used to register hooks for MRFA,
+        # reduced_resnet18 is also resnet18 but with smaller number of filters
+        backbone = getattr(params, 'backbone', 'reduced_resnet18')
+        if backbone == 'reduced_resnet18':
+            self.convnet_type = 'resnet18'
+        else:
+            self.convnet_type = backbone
+        # self.convnet_type = 'resnet18'
         # Khởi tạo MRFA
         self.MRFA = MRFA()
 
