@@ -57,6 +57,7 @@ class DELTA(ContinualLearner):
         self.wd = params.weight_decay
 
     def train_learner(self, x_train, y_train, which_task):
+        print(f"[DELTA] Task {which_task}: Training with {len(x_train)} samples.")
         self.before_train(x_train, y_train)
         # set up loader
         train_dataset = dataset_transform(x_train, y_train, transform=transforms_match[self.data])
