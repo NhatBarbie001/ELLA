@@ -210,6 +210,11 @@ if __name__ == "__main__":
                         help='warmup of buffer before retrieve')
     parser.add_argument('--head', type=str, default='linear',
                         help='projection head')
+    
+    #-----------------------Backbone---------------------#
+    parser.add_argument('--backbone', dest='backbone', default='reduced_resnet18', type=str,
+                        choices=['reduced_resnet18', 'resnet18', 'resnet32'],
+                        help='Backbone architecture for encoder (default: reduced_resnet18)')
     args = parser.parse_args()
     args.cuda = torch.cuda.is_available()
     main(args)

@@ -217,20 +217,21 @@ task_order = {
 
 def setup_architecture(params):
     nclass = n_classes[params.data]
+    backbone = getattr(params, 'backbone', 'reduced_resnet18')
     if params.agent in ['SCR']:
         if params.data == 'mini_imagenet':
-            return SupConResNet(640, head=params.head)
+            return SupConResNet(640, head=params.head, nclass=nclass, backbone=backbone)
         # elif params.data == 'vfn':
-        #     model = SupConResNet(160, head=params.head)
+        #     model = SupConResNet(160, head=params.head, nclass=nclass, backbone=backbone)
             # model.linear = nn.Linear(2560, 74, bias=True)
             return model
-        return SupConResNet(head=params.head)
+        return SupConResNet(head=params.head, nclass=nclass, backbone=backbone)
     
     if params.agent == 'ELLA':
-        return ContrastiveLR(head=params.head, classes=nclass)
+        return ContrastiveLR(head=params.head, classes=nclass, backbone=backbone)
     
     if params.agent == 'DELTA':
-        return ContrastiveLR(head=params.head, classes=nclass)
+        return ContrastiveLR(head=params.head, classes=nclass, backbone=backbone)
     if params.data == 'cifar100':
         return Reduced_ResNet18(nclass)
     elif params.data == 'cifar10':

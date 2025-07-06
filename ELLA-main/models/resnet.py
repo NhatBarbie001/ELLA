@@ -6,6 +6,10 @@ Code adapted from https://github.com/facebookresearch/GradientEpisodicMemory
 import torch.nn.functional as F
 import torch.nn as nn
 from torch.nn.functional import relu, avg_pool2d
+from models.CIFAR_resnet import resnet32 as cifar_resnet32
+
+
+#from models.CIFAR_resnet import ResNet32
 
 def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -122,6 +126,9 @@ def Reduced_ResNet18(nclasses, nf=20, bias=True):
 def ResNet18(nclasses, nf=64, bias=True):
     return ResNet(BasicBlock, [2, 2, 2, 2], nclasses, nf, bias)
 
+
+#def Resnet32() is implemented in CIFAR_resnet.py, applied directly in the code below
+
 '''
 See https://github.com/kuangliu/pytorch-cifar/blob/master/models/resnet.py
 '''
@@ -143,11 +150,24 @@ def ResNet152(nclasses, nf=64, bias=True):
 
 class SupConResNet(nn.Module):
     """backbone + projection head"""
-    def __init__(self, dim_in=160, head='linear', feat_dim=128):
+    def __init__(self, dim_in=160, head='linear', feat_dim=128, nclass=74, backbone='reduced_resnet18'):
         super(SupConResNet, self).__init__()
-        # self.encoder = Reduced_ResNet18(100)
-        self.encoder = Reduced_ResNet18(74)
-        # print('dim_in:',dim_in)
+        if backbone == 'reduced_resnet18':
+            self.encoder = Reduced_ResNet18(nclass)
+        elif backbone == 'resnet18':
+            self.encoder = ResNet18(nclass)
+        elif backbone == 'resnet32':
+            self.encoder = cifar_resnet32()
+
+            # cifar_resnet32 in CIFAR_resnet.py fixed: 
+            # self.out_dim = 64 * block.expansion
+            # self.fc = nn.Linear(64*block.expansion, 10)
+            # we should change the fc layer to fit with nclass that passed in 
+            # self.fc = nn.Linear(64*block.expansion, nclass)
+
+            self.encoder.fc = nn.Linear(self.encoder.out_dim, nclass)
+        else:
+            raise ValueError(f'Unknown backbone: {backbone}')
         if head == 'linear':
             self.head = nn.Linear(dim_in, feat_dim)
         elif head == 'mlp':
@@ -183,13 +203,22 @@ class SupConResNet(nn.Module):
 
 class ContrastiveLR(nn.Module):
     """backbone + projection head"""
-    def __init__(self, dim_in=160, head='mlp', feat_dim=128, classes=100):
+    def __init__(self, dim_in=160, head='mlp', feat_dim=128, nclass=100, backbone='reduced_resnet18'):
         super(ContrastiveLR, self).__init__()
-        #cifar100 or imagenet
-        self.encoder = Reduced_ResNet18(classes)
-        # VFN
-        # self.encoder = Reduced_ResNet18(74)
-        print('dim_in:',dim_in)
+        if backbone == 'reduced_resnet18':
+            self.encoder = Reduced_ResNet18(nclass)
+        elif backbone == 'resnet18':
+            self.encoder = ResNet18(nclass)
+        elif backbone == 'resnet32':
+            self.encoder = cifar_resnet32()
+            # cifar_resnet32 in CIFAR_resnet.py fixed: 
+            # self.out_dim = 64 * block.expansion
+            # self.fc = nn.Linear(64*block.expansion, 10)
+            # we should change the fc layer to fit with nclass that passed in 
+            # self.fc = nn.Linear(64*block.expansion, nclass)
+            self.encoder.fc = nn.Linear(self.encoder.out_dim, nclass)
+        else:
+            raise ValueError(f'Unknown backbone: {backbone}')
         if head == 'linear':
             self.head = nn.Linear(dim_in, feat_dim)
         elif head == 'mlp':
