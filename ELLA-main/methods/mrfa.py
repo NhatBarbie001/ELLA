@@ -24,29 +24,30 @@ class MRFA:
         if net_type == 'resnet32':
             self.get_feature_augmentation(
                 model=model,
-                convnet=convnet,
+                convnet=model.encoder,
                 samples=samples,
                 samples_aug=samples_aug,
                 targets=targets,
-                num_layers=4,
+                num_layers=4, # <-- num_layers is 4 (including linear)
                 register_func=register_forward_prehook_resnet32,
                 criterion=criterion,
                 balanced_loss_stage1=balanced_loss_stage1,
-                for_mem_x_aug=for_mem_x_aug
+                for_mem_x_aug=for_mem_x_aug,
+                ELLAalpha=ELLAalpha
             )
-        elif net_type == 'der_resnet32':
-            self.get_feature_augmentation(
-                model=model,
-                convnet=model.convnets[-1],
-                samples=samples,
-                samples_aug=samples_aug,
-                targets=targets,
-                num_layers=4,
-                register_func=register_forward_prehook_resnet32,
-                criterion=criterion,
-                balanced_loss_stage1=balanced_loss_stage1,
-                for_mem_x_aug=for_mem_x_aug
-            )
+        # elif net_type == 'der_resnet32':
+        #     self.get_feature_augmentation(
+        #         model=model,
+        #         convnet=model.convnets[-1],
+        #         samples=samples,
+        #         samples_aug=samples_aug,
+        #         targets=targets,
+        #         num_layers=4,
+        #         register_func=register_forward_prehook_resnet32,
+        #         criterion=criterion,
+        #         balanced_loss_stage1=balanced_loss_stage1,
+        #         for_mem_x_aug=for_mem_x_aug
+        #     )
         elif net_type == 'resnet18':
             self.get_feature_augmentation(
                 model=model,
@@ -54,7 +55,7 @@ class MRFA:
                 samples=samples,
                 samples_aug=samples_aug,
                 targets=targets,
-                num_layers=5, # <-- num_layers được thiết lập là 5 ở đây (bao gồm linear)
+                num_layers=5, # <-- num_layers is 5 (including linear)
                 register_func=register_forward_prehook_resnet18,
                 criterion=criterion,
                 balanced_loss_stage1=balanced_loss_stage1,
@@ -225,26 +226,26 @@ class MRFA:
         self.remove_handles.extend(register_func(model, convnet, hooks))
 
 def register_forward_prehook_resnet32(model, convnet, hooks):
-    print(f"DEBUG(register_forward_prehook_resnet32): called with len(hooks) = {len(hooks)}")
+    #print(f"DEBUG(register_forward_prehook_resnet32): called with len(hooks) = {len(hooks)}")
     remove_handles = []
 
     remove_handle_stage_1 = convnet.stage_1.register_forward_pre_hook(hooks[0])
     remove_handles.append(remove_handle_stage_1)
-    print(f"DEBUG(register_forward_prehook_resnet32): Hooked convnet.stage_1 (index 0), current handles: {len(remove_handles)}")
+    #print(f"DEBUG(register_forward_prehook_resnet32): Hooked convnet.stage_1 (index 0), current handles: {len(remove_handles)}")
 
     remove_handle_stage_2 = convnet.stage_2.register_forward_pre_hook(hooks[1])
     remove_handles.append(remove_handle_stage_2)
-    print(f"DEBUG(register_forward_prehook_resnet32): Hooked convnet.stage_2 (index 1), current handles: {len(remove_handles)}")
+    #print(f"DEBUG(register_forward_prehook_resnet32): Hooked convnet.stage_2 (index 1), current handles: {len(remove_handles)}")
 
     remove_handle_stage_3 = convnet.stage_3.register_forward_pre_hook(hooks[2])
     remove_handles.append(remove_handle_stage_3)
-    print(f"DEBUG(register_forward_prehook_resnet32): Hooked convnet.stage_3 (index 2), current handles: {len(remove_handles)}")
+    #print(f"DEBUG(register_forward_prehook_resnet32): Hooked convnet.stage_3 (index 2), current handles: {len(remove_handles)}")
 
-    remove_handle_fc = model.fc.register_forward_pre_hook(hooks[3])
-    remove_handles.append(remove_handle_fc)
-    print(f"DEBUG(register_forward_prehook_resnet32): Hooked model.fc (index 3), current handles: {len(remove_handles)}")
+    # remove_handle_fc = convnet.linear.register_forward_pre_hook(hooks[3])
+    # remove_handles.append(remove_handle_fc)
+    #print(f"DEBUG(register_forward_prehook_resnet32): Hooked model.fc (index 3), current handles: {len(remove_handles)}")
 
-    print(f"DEBUG(register_forward_prehook_resnet32): Returning {len(remove_handles)} handles.")
+    #print(f"DEBUG(register_forward_prehook_resnet32): Returning {len(remove_handles)} handles.")
     return remove_handles
 
 def register_forward_prehook_resnet18(model, convnet, hooks):
@@ -268,8 +269,8 @@ def register_forward_prehook_resnet18(model, convnet, hooks):
     remove_handles.append(remove_handle_layer_4)
     #print(f"DEBUG(register_forward_prehook_resnet18): Hooked convnet.layer4 (index 3), current handles: {len(remove_handles)}")
 
-    remove_handle_linear = convnet.linear.register_forward_pre_hook(hooks[4])
-    remove_handles.append(remove_handle_linear)
+    # remove_handle_linear = convnet.linear.register_forward_pre_hook(hooks[4])
+    # remove_handles.append(remove_handle_linear)
     #print(f"DEBUG(register_forward_prehook_resnet18): Hooked convnet.linear (index 4), current handles: {len(remove_handles)}")
 
     #print(f"DEBUG(register_forward_prehook_resnet18): Returning {len(remove_handles)} handles.")
