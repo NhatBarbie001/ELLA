@@ -40,9 +40,9 @@ class Buffer(torch.nn.Module):
     def retrieve(self, **kwargs):
         result = self.retrieve_method.retrieve(buffer=self, **kwargs)
         # Debug print: số lượng sample lấy từ buffer
-        if isinstance(result, tuple) and len(result) >= 2:
-            x, y = result[:2]
-            print(f"[Buffer] Retrieved {x.size(0)} samples from buffer.")
-        else:
-            print(f"[Buffer] Retrieved samples from buffer: {type(result)}")
+        # if isinstance(result, tuple) and len(result) >= 2:
+        #     x, y = result[:2]
+        #     print(f"[Buffer] Retrieved {x.size(0)} samples from buffer.")
+        # else:
+        #     print(f"[Buffer] Retrieved samples from buffer: {type(result)}")
         return result

@@ -71,6 +71,7 @@ class DELTA(ContinualLearner):
         losses_stage2 = AverageMeter()
         acc_batch = AverageMeter()
         for ep in range(self.epoch):
+            
             for i, batch_data in enumerate(train_loader):
                 distribution_vector = np.zeros(self.class_size, dtype='float')
                 loss_func = None
@@ -78,9 +79,9 @@ class DELTA(ContinualLearner):
                 batch_x, batch_y = batch_data
                 batch_x = maybe_cuda(batch_x, self.cuda)
                 batch_y = maybe_cuda(batch_y, self.cuda)
-
                 #Stage 1
                 for j in range(self.mem_iters):
+                    print(f"[DELTA][Batch {i}] batch_x: {batch_x.size(0)}, mem_x: {mem_x.size(0)}, total: {batch_x.size(0) + mem_x.size(0)}")
                     mem_x, mem_y = self.buffer.retrieve(x=batch_x, y=batch_y)
                     # Unfreeze all layers
                     for param in self.model.encoder.parameters():

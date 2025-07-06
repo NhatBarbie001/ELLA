@@ -71,7 +71,7 @@ class MRFA:
         if net_type == 'resnet32':
             self.register_perturb_forward_prehook_layers(model, model.encoder, 4, register_forward_prehook_resnet32)
         elif net_type == 'resnet18':
-            self.register_perturb_forward_prehook_layers(model, model.encoder, 5, register_forward_prehook_resnet18) # <-- num_layers được thiết lập là 5 ở đây
+            self.register_perturb_forward_prehook_layers(model, model.encoder, 5, register_forward_prehook_resnet18) # <-- num_layers = 5
         else:
             raise ValueError(f'Unknown net_type {net_type}.')
 
