@@ -92,7 +92,7 @@ class CifarResNet(nn.Module):
     https://arxiv.org/abs/1512.03385.pdf
     """
 
-    def __init__(self, block, depth, channels=3):
+    def __init__(self, block, depth, channels=3, num_classes=10):
         super(CifarResNet, self).__init__()
 
         # Model type specifies number of layers for CIFAR-10 and CIFAR-100 model
@@ -112,7 +112,8 @@ class CifarResNet(nn.Module):
         self.layer3 = self.stage_3
         self.avgpool = nn.AvgPool2d(8)
         self.out_dim = 64 * block.expansion
-        self.linear = nn.Linear(64*block.expansion, 10)
+        self.num_classes = num_classes
+        self.linear = nn.Linear(64*block.expansion, num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -167,50 +168,46 @@ class CifarResNet(nn.Module):
 
 def resnet20mnist():
     """Constructs a ResNet-20 model for MNIST."""
-    model = CifarResNet(ResNetBasicblock, 20, 1)
+    model = CifarResNet(ResNetBasicblock, 20, 1, num_classes=1)
     return model
 
 
 def resnet32mnist():
     """Constructs a ResNet-32 model for MNIST."""
-    model = CifarResNet(ResNetBasicblock, 32, 1)
+    model = CifarResNet(ResNetBasicblock, 32, 1, num_classes=1)
     return model
 
 
-def resnet20():
-    """Constructs a ResNet-20 model for CIFAR-10."""
-    model = CifarResNet(ResNetBasicblock, 20)
+def resnet20(num_classes=10):
+    """Constructs a ResNet-20 model for CIFAR-10 or CIFAR-100."""
+    model = CifarResNet(ResNetBasicblock, 20, num_classes=num_classes)
     return model
 
 
-def resnet32():
-    """Constructs a ResNet-32 model for CIFAR-10."""
-    model = CifarResNet(ResNetBasicblock, 32)
+def resnet32(num_classes=10):
+    """Constructs a ResNet-32 model for CIFAR-10 or CIFAR-100."""
+    model = CifarResNet(ResNetBasicblock, 32, num_classes=num_classes)
     return model
 
 
-def resnet44():
-    """Constructs a ResNet-44 model for CIFAR-10."""
-    model = CifarResNet(ResNetBasicblock, 44)
+def resnet44(num_classes=10):
+    model = CifarResNet(ResNetBasicblock, 44, num_classes=num_classes)
     return model
 
 
-def resnet56():
-    """Constructs a ResNet-56 model for CIFAR-10."""
-    model = CifarResNet(ResNetBasicblock, 56)
+def resnet56(num_classes=10):
+    model = CifarResNet(ResNetBasicblock, 56, num_classes=num_classes)
     return model
 
 
-def resnet110():
-    """Constructs a ResNet-110 model for CIFAR-10."""
-    model = CifarResNet(ResNetBasicblock, 110)
+def resnet110(num_classes=10):
+    model = CifarResNet(ResNetBasicblock, 110, num_classes=num_classes)
     return model
 
-# for auc
-def resnet14():
-    model = CifarResNet(ResNetBasicblock, 14)
+def resnet14(num_classes=10):
+    model = CifarResNet(ResNetBasicblock, 14, num_classes=num_classes)
     return model
 
-def resnet26():
-    model = CifarResNet(ResNetBasicblock, 26)
+def resnet26(num_classes=10):
+    model = CifarResNet(ResNetBasicblock, 26, num_classes=num_classes)
     return model

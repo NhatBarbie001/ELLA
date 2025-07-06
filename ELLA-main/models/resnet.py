@@ -148,26 +148,22 @@ def ResNet152(nclasses, nf=64, bias=True):
     return ResNet(Bottleneck, [3, 8, 36, 3], nclasses, nf, bias)
 
 
+def get_encoder(backbone, nclass):
+    if backbone == 'reduced_resnet18':
+        return Reduced_ResNet18(nclass)
+    elif backbone == 'resnet18':
+        return ResNet18(nclass)
+    elif backbone == 'resnet32':
+        encoder = cifar_resnet32(num_classes=nclass)
+        return encoder
+    else:
+        raise ValueError(f'Unknown backbone: {backbone}')
+
 class SupConResNet(nn.Module):
     """backbone + projection head"""
     def __init__(self, dim_in=160, head='linear', feat_dim=128, nclass=74, backbone='reduced_resnet18'):
         super(SupConResNet, self).__init__()
-        if backbone == 'reduced_resnet18':
-            self.encoder = Reduced_ResNet18(nclass)
-        elif backbone == 'resnet18':
-            self.encoder = ResNet18(nclass)
-        elif backbone == 'resnet32':
-            self.encoder = cifar_resnet32()
-
-            # cifar_resnet32 in CIFAR_resnet.py fixed: 
-            # self.out_dim = 64 * block.expansion
-            # self.fc = nn.Linear(64*block.expansion, 10)
-            # we should change the fc layer to fit with nclass that passed in 
-            # self.fc = nn.Linear(64*block.expansion, nclass)
-
-            self.encoder.fc = nn.Linear(self.encoder.out_dim, nclass)
-        else:
-            raise ValueError(f'Unknown backbone: {backbone}')
+        self.encoder = get_encoder(backbone, nclass)
         if head == 'linear':
             self.head = nn.Linear(dim_in, feat_dim)
         elif head == 'mlp':
@@ -179,8 +175,7 @@ class SupConResNet(nn.Module):
         elif head == 'None':
             self.head = None
         else:
-            raise NotImplementedError(
-                'head not supported: {}'.format(head))
+            raise NotImplementedError('head not supported: {}'.format(head))
 
     def forward(self, x):
         feat = self.encoder.features(x)
@@ -205,20 +200,7 @@ class ContrastiveLR(nn.Module):
     """backbone + projection head"""
     def __init__(self, dim_in=160, head='mlp', feat_dim=128, nclass=100, backbone='reduced_resnet18'):
         super(ContrastiveLR, self).__init__()
-        if backbone == 'reduced_resnet18':
-            self.encoder = Reduced_ResNet18(nclass)
-        elif backbone == 'resnet18':
-            self.encoder = ResNet18(nclass)
-        elif backbone == 'resnet32':
-            self.encoder = cifar_resnet32()
-            # cifar_resnet32 in CIFAR_resnet.py fixed: 
-            # self.out_dim = 64 * block.expansion
-            # self.fc = nn.Linear(64*block.expansion, 10)
-            # we should change the fc layer to fit with nclass that passed in 
-            # self.fc = nn.Linear(64*block.expansion, nclass)
-            self.encoder.fc = nn.Linear(self.encoder.out_dim, nclass)
-        else:
-            raise ValueError(f'Unknown backbone: {backbone}')
+        self.encoder = get_encoder(backbone, nclass)
         if head == 'linear':
             self.head = nn.Linear(dim_in, feat_dim)
         elif head == 'mlp':
@@ -230,8 +212,7 @@ class ContrastiveLR(nn.Module):
         elif head == 'None':
             self.head = None
         else:
-            raise NotImplementedError(
-                'head not supported: {}'.format(head))
+            raise NotImplementedError('head not supported: {}'.format(head))
 
     def forward(self, x):
         feat = self.encoder.features(x)
