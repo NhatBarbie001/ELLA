@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch
 from torch.nn.functional import relu, avg_pool2d
 from models.CIFAR_resnet import resnet32 as cifar_resnet32
+from torchvision.models import resnet18 as tv_resnet18, resnet34 as tv_resnet34, resnet50 as tv_resnet50, resnet101 as tv_resnet101, resnet152 as tv_resnet152
 
 
 #from models.CIFAR_resnet import ResNet32
@@ -149,6 +150,15 @@ def ResNet152(nclasses, nf=64, bias=True):
     return ResNet(Bottleneck, [3, 8, 36, 3], nclasses, nf, bias)
 
 
+def ResNet20(nclasses, nf=16, bias=True):
+    return ResNet(BasicBlock, [3, 3, 3, 3], nclasses, nf, bias)
+
+def ResNet56(nclasses, nf=16, bias=True):
+    return ResNet(BasicBlock, [9, 9, 9, 9], nclasses, nf, bias)
+
+def ResNet110(nclasses, nf=16, bias=True):
+    return ResNet(BasicBlock, [18, 18, 18, 18], nclasses, nf, bias)
+
 def get_encoder(backbone, nclass):
     if backbone == 'reduced_resnet18':
         return Reduced_ResNet18(nclass)
@@ -157,6 +167,35 @@ def get_encoder(backbone, nclass):
     elif backbone == 'resnet32':
         encoder = cifar_resnet32(num_classes=nclass)
         return encoder
+    elif backbone == 'resnet20':
+        return ResNet20(nclass)
+    elif backbone == 'resnet34':
+        return ResNet34(nclass)
+    elif backbone == 'resnet50':
+        return ResNet50(nclass)
+    elif backbone == 'resnet56':
+        return ResNet56(nclass)
+    elif backbone == 'resnet101':
+        return ResNet101(nclass)
+    elif backbone == 'resnet110':
+        return ResNet110(nclass)
+    elif backbone == 'resnet152':
+        return ResNet152(nclass)
+    elif backbone == 'tv_resnet18':
+        model = tv_resnet18(num_classes=nclass)
+        return model
+    elif backbone == 'tv_resnet34':
+        model = tv_resnet34(num_classes=nclass)
+        return model
+    elif backbone == 'tv_resnet50':
+        model = tv_resnet50(num_classes=nclass)
+        return model
+    elif backbone == 'tv_resnet101':
+        model = tv_resnet101(num_classes=nclass)
+        return model
+    elif backbone == 'tv_resnet152':
+        model = tv_resnet152(num_classes=nclass)
+        return model
     else:
         raise ValueError(f'Unknown backbone: {backbone}')
 
@@ -199,19 +238,15 @@ class SupConResNet(nn.Module):
 
 class ContrastiveLR(nn.Module):
     """backbone + projection head"""
-    def __init__(self, dim_in=None, head='mlp', feat_dim=128, nclass=100, backbone='reduced_resnet18'):
+    def __init__(self, dim_in=None, head='mlp', feat_dim=128, nclass=100, backbone='reduced_resnet18', input_size=(3,32,32)):
         super(ContrastiveLR, self).__init__()
         self.encoder = get_encoder(backbone, nclass)
         # Tự động xác định dim_in nếu không truyền vào
         if dim_in is None:
             with torch.no_grad():
-                # Chọn input size phù hợp cho từng backbone nếu cần
-                if backbone == 'resnet32':
-                    dummy = torch.zeros(1, 3, 32, 32) #cifar100, input size = 32x32
-                else:
-                    dummy = torch.zeros(1, 3, 32, 32)
-                feat = self.encoder.features(dummy) #[bs, 64]
-                dim_in = feat.shape[1]              # = 64
+                dummy = torch.zeros(1, *input_size)
+                feat = self.encoder.features(dummy)
+                dim_in = feat.shape[1]
         if head == 'linear':
             self.head = nn.Linear(dim_in, feat_dim)
         elif head == 'mlp':
