@@ -50,7 +50,7 @@ class DELTA(ContinualLearner):
         if params.data == 'cifar100' or params.data == 'imagenet_subset':
             self.class_size = 100
         else:
-            self.class_size = 74
+            self.class_size = 74        
 
         self.tasks = params.num_tasks
         self.lr = params.learning_rate
@@ -81,8 +81,9 @@ class DELTA(ContinualLearner):
                 batch_y = maybe_cuda(batch_y, self.cuda)
                 #Stage 1
                 for j in range(self.mem_iters):
-                    print(f"[DELTA][Batch {i}] batch_x: {batch_x.size(0)}, mem_x: {mem_x.size(0)}, total: {batch_x.size(0) + mem_x.size(0)}")
                     mem_x, mem_y = self.buffer.retrieve(x=batch_x, y=batch_y)
+                    mem_size = mem_x.size(0) if mem_x is not None else 0
+                    #print(f"[DELTA][Batch {i}] batch_x: {batch_x.size(0)}, mem_x: {mem_size}, total: {batch_x.size(0) + mem_size}")
                     # Unfreeze all layers
                     for param in self.model.encoder.parameters():
                         param.requires_grad = True

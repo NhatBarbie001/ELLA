@@ -5,6 +5,7 @@ Code adapted from https://github.com/facebookresearch/GradientEpisodicMemory
 """
 import torch.nn.functional as F
 import torch.nn as nn
+import torch
 from torch.nn.functional import relu, avg_pool2d
 from models.CIFAR_resnet import resnet32 as cifar_resnet32
 
@@ -198,9 +199,19 @@ class SupConResNet(nn.Module):
 
 class ContrastiveLR(nn.Module):
     """backbone + projection head"""
-    def __init__(self, dim_in=160, head='mlp', feat_dim=128, nclass=100, backbone='reduced_resnet18'):
+    def __init__(self, dim_in=None, head='mlp', feat_dim=128, nclass=100, backbone='reduced_resnet18'):
         super(ContrastiveLR, self).__init__()
         self.encoder = get_encoder(backbone, nclass)
+        # Tự động xác định dim_in nếu không truyền vào
+        if dim_in is None:
+            with torch.no_grad():
+                # Chọn input size phù hợp cho từng backbone nếu cần
+                if backbone == 'resnet32':
+                    dummy = torch.zeros(1, 3, 32, 32)
+                else:
+                    dummy = torch.zeros(1, 3, 32, 32)
+                feat = self.encoder.features(dummy)
+                dim_in = feat.shape[1]
         if head == 'linear':
             self.head = nn.Linear(dim_in, feat_dim)
         elif head == 'mlp':

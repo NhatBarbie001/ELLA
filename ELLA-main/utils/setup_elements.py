@@ -228,10 +228,10 @@ def setup_architecture(params):
         return SupConResNet(head=params.head, nclass=nclass, backbone=backbone)
     
     if params.agent == 'ELLA':
-        return ContrastiveLR(head=params.head, nclass=nclass, backbone=backbone)
+        return ContrastiveLR(head=params.head, classes=nclass, backbone=backbone)
     
     if params.agent == 'DELTA':
-        return ContrastiveLR(head=params.head, nclass=nclass, backbone=backbone)
+        return ContrastiveLR(head=params.head, classes=nclass, backbone=backbone)
     if params.data == 'cifar100':
         return Reduced_ResNet18(nclass)
     elif params.data == 'cifar10':
