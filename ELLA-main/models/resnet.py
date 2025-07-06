@@ -207,11 +207,11 @@ class ContrastiveLR(nn.Module):
             with torch.no_grad():
                 # Chọn input size phù hợp cho từng backbone nếu cần
                 if backbone == 'resnet32':
-                    dummy = torch.zeros(1, 3, 32, 32)
+                    dummy = torch.zeros(1, 3, 32, 32) #cifar100, input size = 32x32
                 else:
                     dummy = torch.zeros(1, 3, 32, 32)
-                feat = self.encoder.features(dummy)
-                dim_in = feat.shape[1]
+                feat = self.encoder.features(dummy) #[bs, 64]
+                dim_in = feat.shape[1]              # = 64
         if head == 'linear':
             self.head = nn.Linear(dim_in, feat_dim)
         elif head == 'mlp':
