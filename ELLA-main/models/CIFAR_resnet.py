@@ -108,7 +108,7 @@ class CifarResNet(nn.Module):
         self.stage_3 = self._make_layer(block, 64, layer_blocks, 2)
         self.avgpool = nn.AvgPool2d(8)
         self.out_dim = 64 * block.expansion
-        self.fc = nn.Linear(64*block.expansion, 10)
+        self.linear = nn.Linear(64*block.expansion, 10)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -148,7 +148,7 @@ class CifarResNet(nn.Module):
 
     def logits(self, features):
         # Đưa đặc trưng qua FC layer cuối cùng
-        return self.fc(features)
+        return self.linear(features)
 
     def forward(self, x):
         # Chuỗi hóa hai bước trên
