@@ -16,29 +16,99 @@ import random
 from PIL import Image
 
 class VFN(DatasetBase):
+	# def _get_img_from_paths(self, text_file):
+	# 	img_data = []
+	# 	data = []
+	# 	labels = []
+
+	# 	with open(text_file,'rb') as f:
+	# 		for line in f:
+	# 			temp = line.strip().decode("utf-8")
+	# 			temp = '../../VFN/'+temp[2:]
+	# 			data.append(temp.split('==')[0])
+	# 			labels.append(temp.split('==')[1])
+
+	# 	for datapath in data:
+	# 		img = cv2.imread(datapath)
+	# 		img_data.append(img)
+	# 	img_data = np.array(img_data)
+	
+	# 	return img_data, labels
 	def _get_img_from_paths(self, text_file):
-		img_data = []
-		data = []
-		labels = []
+        """
+        Đọc file text_file (ví dụ: balanced_training.txt), tải ảnh,
+        và chuyển đổi nhãn thành các số nguyên liên tiếp.
 
-		with open(text_file,'rb') as f:
-			for line in f:
-				temp = line.strip().decode("utf-8")
-				temp = '../../VFN/'+temp[2:]
-				data.append(temp.split('==')[0])
-				labels.append(temp.split('==')[1])
+        Args:
+            text_file (str): Đường dẫn đến file chứa danh sách ảnh và nhãn (ví dụ: 'meta/balanced_training.txt').
 
-		for datapath in data:
-			img = cv2.imread(datapath)
-			img_data.append(img)
-		img_data = np.array(img_data)
-		return img_data, labels
+        Returns:
+            tuple: (img_data, mapped_labels)
+                - img_data (np.array): Mảng NumPy chứa dữ liệu ảnh.
+                - mapped_labels (list): Danh sách các nhãn đã được ánh xạ thành số nguyên liên tiếp.
+        """
+        img_data = []
+        mapped_labels = [] # Danh sách mới chứa các nhãn số nguyên
 
-	def __init__(self, scenario, params):
+        # Đảm bảo self.label_mapping và self.next_int_id được khởi tạo một lần
+        # hoặc được reset nếu cần xử lý nhiều file theo cách độc lập.
+        # Nếu muốn ánh xạ liên tục trên nhiều file, giữ chúng không reset.
+        # Nếu mỗi lần gọi _get_img_from_paths là độc lập, hãy reset ở đây:
+        # self.label_mapping = {}
+        # self.next_int_id = 0
+
+
+        if not os.path.exists(text_file):
+            print(f"Lỗi: File '{text_file}' không tồn tại.")
+            return np.array([]), []
+
+        print(f"Đang đọc dữ liệu từ: {text_file}")
+        with open(text_file, 'r') as f: # Mở file ở chế độ đọc văn bản ('r')
+            for line in f:
+                stripped_line = line.strip()
+                parts = stripped_line.split('==')
+
+                if len(parts) == 2:
+                    image_filename = parts[0]
+                    original_label_str = parts[1] # Nhãn gốc là string (ví dụ: "0", "1", "3")
+
+                    # Bước 1: Ánh xạ nhãn string sang số nguyên liên tiếp
+                    if original_label_str not in self.label_mapping:
+                        self.label_mapping[original_label_str] = self.next_int_id
+                        self.next_int_id += 1
+                    
+                    current_mapped_label = self.label_mapping[original_label_str]
+                    mapped_labels.append(current_mapped_label)
+
+                    # Bước 2: Xây dựng đường dẫn đầy đủ đến ảnh
+                    # Đường dẫn ảnh đúng sẽ là BASE_FOLDER_PATH/Images/LABEL_FOLDER/image_filename.jpg
+                    full_image_path = os.path.join(self.base_folder_path, 'Images', original_label_str, image_filename)
+                    
+                    # Bước 3: Đọc ảnh
+                    img = cv2.imread(full_image_path)
+                    if img is not None:
+                        img_data.append(img)
+                    else:
+                        print(f"Cảnh báo: Không thể tải ảnh từ '{full_image_path}'. Bỏ qua ảnh này.")
+                else:
+                    print(f"Cảnh báo: Dòng không đúng định dạng trong '{text_file}': {stripped_line}")
+        
+        # Chuyển đổi danh sách ảnh thành mảng NumPy
+        if img_data:
+            img_data = np.array(img_data)
+        else:
+            img_data = np.array([]) # Trả về mảng rỗng nếu không có ảnh nào được tải
+
+        print(f"Hoàn tất tải ảnh từ {text_file}. Tổng số ảnh tải được: {len(img_data)}")
+        print(f"Ánh xạ nhãn cuối cùng: {self.label_mapping}")
+        
+        return img_data, mapped_labels
+
+    def __init__(self, scenario, params):
 		dataset = 'vfn'
 		num_tasks = params.num_tasks
-		self.train_file = '../../VFN/vfn_longtailed_train.txt'
-		self.test_file = '../../VFN/vfn_longtailed_test.txt'
+		self.train_file = '..\..\data\vfn_longtailed_train.txt'
+		self.test_file = '..\..\data\vfn_longtailed_test.txt'
 		nc_first_task = params.nc_first_task
 		super(VFN, self).__init__(dataset, scenario, num_tasks, params.num_runs, params)
 
