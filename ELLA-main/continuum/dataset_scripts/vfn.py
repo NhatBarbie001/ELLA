@@ -16,37 +16,25 @@ import random
 from PIL import Image
 
 class VFN(DatasetBase):
-	# def _get_img_from_paths(self, text_file):
-	# 	img_data = []
-	# 	data = []
-	# 	labels = []
+    # # def _get_img_from_paths(self, text_file):
+    # # 	img_data = []
+    # # 	data = []
+    # # 	labels = []
 
-	# 	with open(text_file,'rb') as f:
-	# 		for line in f:
-	# 			temp = line.strip().decode("utf-8")
-	# 			temp = '../../VFN/'+temp[2:]
-	# 			data.append(temp.split('==')[0])
-	# 			labels.append(temp.split('==')[1])
+    # # 	with open(text_file,'rb') as f:
+    # # 		for line in f:
+    # # 			temp = line.strip().decode("utf-8")
+    # # 			temp = '../../VFN/'+temp[2:]
+    # # 			data.append(temp.split('==')[0])
+    # # 			labels.append(temp.split('==')[1])
 
-	# 	for datapath in data:
-	# 		img = cv2.imread(datapath)
-	# 		img_data.append(img)
-	# 	img_data = np.array(img_data)
-	
-	# 	return img_data, labels
-	def _get_img_from_paths(self, text_file):
-        """
-        Đọc file text_file (ví dụ: balanced_training.txt), tải ảnh,
-        và chuyển đổi nhãn thành các số nguyên liên tiếp.
-
-        Args:
-            text_file (str): Đường dẫn đến file chứa danh sách ảnh và nhãn (ví dụ: 'meta/balanced_training.txt').
-
-        Returns:
-            tuple: (img_data, mapped_labels)
-                - img_data (np.array): Mảng NumPy chứa dữ liệu ảnh.
-                - mapped_labels (list): Danh sách các nhãn đã được ánh xạ thành số nguyên liên tiếp.
-        """
+    # # 	for datapath in data:
+    # # 		img = cv2.imread(datapath)
+    # # 		img_data.append(img)
+    # # 	img_data = np.array(img_data)
+    
+    # # 	return img_data, labels
+    def _get_img_from_paths(self, text_file):
         img_data = []
         mapped_labels = [] # Danh sách mới chứa các nhãn số nguyên
 
@@ -56,8 +44,6 @@ class VFN(DatasetBase):
         # Nếu mỗi lần gọi _get_img_from_paths là độc lập, hãy reset ở đây:
         # self.label_mapping = {}
         # self.next_int_id = 0
-
-
         if not os.path.exists(text_file):
             print(f"Lỗi: File '{text_file}' không tồn tại.")
             return np.array([]), []
@@ -105,53 +91,50 @@ class VFN(DatasetBase):
         return img_data, mapped_labels
 
     def __init__(self, scenario, params):
-		
+        
         # Initialize the base folder path of the dataset
-		# you should change this path to the location where you have stored the dataset
-		self.base_folder_path = '/content/vfn_1_0/vfn_1_0/Images'
-		dataset = 'vfn'
-		num_tasks = params.num_tasks
-		self.train_file = '/content/vfn_1_0/vfn_1_0/data/vfn_longtailed_train.txt'
-		self.test_file = '/content/vfn_1_0/vfn_1_0/data/vfn_longtailed_test.txt'
-		nc_first_task = params.nc_first_task
-		super(VFN, self).__init__(dataset, scenario, num_tasks, params.num_runs, params)
+        # you should change this path to the location where you have stored the dataset
+        self.base_folder_path = '/content/drive/MyDrive/vfn_1_0/vfn_1_0/Images'
+        dataset = 'vfn'
+        num_tasks = params.num_tasks
+        self.train_file = '/content/vfn_1_0/vfn_1_0/data/vfn_longtailed_train.txt'
+        self.test_file = '/content/vfn_1_0/vfn_1_0/data/vfn_longtailed_test.txt'
+        nc_first_task = params.nc_first_task
+        super(VFN, self).__init__(dataset, scenario, num_tasks, params.num_runs, params)
 
-	def download_load(self):
-		self.train_data, self.train_label = self._get_img_from_paths(self.train_file)
-		self.test_data, self.test_label = self._get_img_from_paths(self.test_file)
+    def download_load(self):
+        self.train_data, self.train_label = self._get_img_from_paths(self.train_file)
+        self.test_data, self.test_label = self._get_img_from_paths(self.test_file)
 
-	def setup(self):
-		if self.scenario == 'nc':
-			#vfn does not have conventional setting - class is traditionally longtailed
-			if self.params.lt: 
-				class_order_var = 'vfn_lt'
-			else:
-				class_order_var = 'vfn_ltio'
-			self.task_labels, self.data = create_task_composition_vfn(class_nums=74, num_tasks=self.task_nums, nc_first_task=self.params.nc_first_task, class_order = class_order_table[class_order_var], \
-																	x=self.train_data, y=self.train_label, x_test=self.test_data, y_test=self.test_label, lt=self.params.lt, ltio=self.params.ltio, fixed_order=self.params.fix_order, imb_factor=self.params.imb_factor)
-			self.test_set = []
-			for labels in range(len(self.task_labels)):
-				x_test, y_test = np.asarray(self.data[labels]['tst']['x']), np.asarray(self.data[labels]['tst']['y'])
-				self.test_set.append((x_test, y_test))
+    def setup(self):
+        if self.scenario == 'nc':
+            #vfn does not have conventional setting - class is traditionally longtailed
+            if self.params.lt: 
+                class_order_var = 'vfn_lt'
+            else:
+                class_order_var = 'vfn_ltio'
+            self.task_labels, self.data = create_task_composition_vfn(class_nums=74, num_tasks=self.task_nums, nc_first_task=self.params.nc_first_task, class_order = class_order_table[class_order_var], \
+                                                                    x=self.train_data, y=self.train_label, x_test=self.test_data, y_test=self.test_label, lt=self.params.lt, ltio=self.params.ltio, fixed_order=self.params.fix_order, imb_factor=self.params.imb_factor)
+            self.test_set = []
+            for labels in range(len(self.task_labels)):
+                x_test, y_test = np.asarray(self.data[labels]['tst']['x']), np.asarray(self.data[labels]['tst']['y'])
+                self.test_set.append((x_test, y_test))
 
-		else:
-			raise Exception('wrong scenario')
+            else:
+                raise Exception('wrong scenario')
 
-	def new_task(self, cur_task, **kwargs):
-		if self.scenario == 'ni':
-			x_train, y_train = self.train_set[cur_task]
-			labels = set(y_train)
-		elif self.scenario == 'nc':
-			labels = self.task_labels[cur_task]
-			x_train, y_train = np.asarray(self.data[cur_task]['trn']['x']), np.asarray(self.data[cur_task]['trn']['y'])
-		return x_train, y_train, labels, cur_task
+    def new_task(self, cur_task, **kwargs):
+        if self.scenario == 'ni':
+            x_train, y_train = self.train_set[cur_task]
+            labels = set(y_train)
+        elif self.scenario == 'nc':
+            labels = self.task_labels[cur_task]
+            x_train, y_train = np.asarray(self.data[cur_task]['trn']['x']), np.asarray(self.data[cur_task]['trn']['y'])
+        return x_train, y_train, labels, cur_task
 
-	def new_run(self, **kwargs):
-		self.setup()
-		return self.test_set
+    def new_run(self, **kwargs):
+        self.setup()   
+        return self.test_set
 
-	def test_plot(self):
-		return 0
-		
-
-
+    def test_plot(self):
+        return 0

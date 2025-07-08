@@ -20,14 +20,14 @@ from agents.ELLA import ELLA
 data_objects = {
     'cifar100': CIFAR100,
     'imagenet_subset': ImageNet_Subset,
-    'vfn':VFN
+    'vfn': VFN
 }
 
 agents = {
     'ER': ExperienceReplay,
     'SCR': SupContrastReplay,
-    'DELTA':DELTA,
-    'ELLA':ELLA
+    'DELTA': DELTA,
+    'ELLA': ELLA
 }
 
 retrieve_methods = {
