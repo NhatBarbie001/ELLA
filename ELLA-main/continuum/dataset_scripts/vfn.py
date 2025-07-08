@@ -82,7 +82,7 @@ class VFN(DatasetBase):
 
                     # Bước 2: Xây dựng đường dẫn đầy đủ đến ảnh
                     # Đường dẫn ảnh đúng sẽ là BASE_FOLDER_PATH/Images/LABEL_FOLDER/image_filename.jpg
-                    full_image_path = os.path.join(self.base_folder_path, 'Images', original_label_str, image_filename)
+                    full_image_path = os.path.join(self.base_folder_path, original_label_str, image_filename)
                     
                     # Bước 3: Đọc ảnh
                     img = cv2.imread(full_image_path)
@@ -105,10 +105,14 @@ class VFN(DatasetBase):
         return img_data, mapped_labels
 
     def __init__(self, scenario, params):
+		
+        # Initialize the base folder path of the dataset
+		# you should change this path to the location where you have stored the dataset
+		self.base_folder_path = '/content/vfn_1_0/vfn_1_0/Images'
 		dataset = 'vfn'
 		num_tasks = params.num_tasks
-		self.train_file = '..\..\data\vfn_longtailed_train.txt'
-		self.test_file = '..\..\data\vfn_longtailed_test.txt'
+		self.train_file = '/content/vfn_1_0/vfn_1_0/data/vfn_longtailed_train.txt'
+		self.test_file = '/content/vfn_1_0/vfn_1_0/data/vfn_longtailed_test.txt'
 		nc_first_task = params.nc_first_task
 		super(VFN, self).__init__(dataset, scenario, num_tasks, params.num_runs, params)
 

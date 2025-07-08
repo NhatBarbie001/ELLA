@@ -193,6 +193,35 @@ def create_task_composition_vfn(class_nums, num_tasks, nc_first_task, class_orde
         class_order = class_order.copy()
     if fixed_order is False: #shuffle is True
         np.random.shuffle(class_order)
+
+    num_per_cls = np.zeros(class_nums)
+    for i in range(len(x)):
+        this_image = x[i]
+        this_label = int(y[i])
+        if this_label not in class_order:
+            continue
+        this_label = class_order.index(this_label)
+        this_task = (this_label >= cpertask_cumsum).sum()
+        num_per_cls[this_label] += 1
+    if lt:
+        img_num_per_cls = class_distribution_table_vfn['lt']
+
+        # because the VFN74 is not balanced, maybe there is a class that has less images than that in the fixed distribution
+        # so we need to shuffle the class order until it is valid
+        while True:
+            current_order_is_valid = True
+            np.random.shuffle(class_order)
+            for i, class_id in enumerate(class_order):
+                acctual_count = num_per_cls[class_id]
+                if acctual_count < img_num_per_cls[i]:
+                    current_order_is_valid = False
+                    break
+            if current_order_is_valid:
+                break
+                
+    else:
+        img_num_per_cls = class_distribution_table_vfn['ltio']
+
         
     if nc_first_task is None:
         cpertask = np.array([class_nums // num_tasks] * num_tasks)
@@ -227,18 +256,18 @@ def create_task_composition_vfn(class_nums, num_tasks, nc_first_task, class_orde
         clsanalysis[tt] = np.zeros(cpertask[tt])
     #TRAIN ANALYSIS
     num_per_cls = np.zeros(class_nums)
-    for i in range(len(x)):
-        this_image = x[i]
-        this_label = int(y[i])
-        if this_label not in class_order:
-            continue
-        this_label = class_order.index(this_label)
-        this_task = (this_label >= cpertask_cumsum).sum()
-        num_per_cls[this_label] += 1
-    if lt:
-        img_num_per_cls = class_distribution_table_vfn['lt']
-    else:
-        img_num_per_cls = class_distribution_table_vfn['ltio']
+    # for i in range(len(x)):
+    #     this_image = x[i]
+    #     this_label = int(y[i])
+    #     if this_label not in class_order:
+    #         continue
+    #     this_label = class_order.index(this_label)
+    #     this_task = (this_label >= cpertask_cumsum).sum()
+    #     num_per_cls[this_label] += 1
+    # if lt:
+    #     img_num_per_cls = class_distribution_table_vfn['lt']
+    # else:
+    #     img_num_per_cls = class_distribution_table_vfn['ltio']
     # img_num_per_cls = num_per_cls # as this datatset is longtailed by itself
     num_per_cls_now = np.zeros(class_nums)
     # print('class order: ', class_order)
