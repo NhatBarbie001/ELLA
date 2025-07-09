@@ -45,6 +45,8 @@ class VFN(DatasetBase):
         # Nếu mỗi lần gọi _get_img_from_paths là độc lập, hãy reset ở đây:
         self.label_mapping = {}
         self.next_int_id = 0
+        mapped_labels = []
+        img_data = []
         if not os.path.exists(text_file):
             print(f"Lỗi: File '{text_file}' không tồn tại.")
             return np.array([]), []

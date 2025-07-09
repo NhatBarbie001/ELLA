@@ -284,7 +284,7 @@ def create_task_composition_vfn(class_nums, num_tasks, nc_first_task, class_orde
     # print('class order: ', class_order)
     # print('img per cls: ', img_num_per_cls)
     #ALL or Train
-
+    print(f"Đang đọc dữ liệu từ: {training_file_path}")
     with open(training_file_path, 'r') as f:
         for line in f:
                 stripped_line = line.strip()
@@ -308,7 +308,7 @@ def create_task_composition_vfn(class_nums, num_tasks, nc_first_task, class_orde
                         data[this_task]['trn']['x'].append(this_image)
                         data[this_task]['trn']['y'].append(this_label_old) #- init_class[this_task])
                         num_per_cls_now[this_label] += 1
-
+    print(f"Đọc dữ liệu từ: {training_file_path} Hoàn tất. Tổng số ảnh tải được: {len(data[0]['trn']['x'])}")
 
 
 
