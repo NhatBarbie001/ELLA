@@ -40,11 +40,12 @@ class VFN(DatasetBase):
         # Đảm bảo chiều rộng và chiều cao không âm
         width = max(0, x2 - x1)
         height = max(0, y2 - y1)
-        return width * height   
-    def resize_image(image, image_filename, original_label_str, image_annotations, target_size=(224, 224)):
+        return width * height
+
+    def resize_image(self, image, image_filename, original_label, image_annotations, target_size=(224, 224)):
         if image is not None:
             # Lấy bounding box và cắt ảnh
-            x1, y1, x2, y2 = image_annotations[(image_filename, original_label_str)]
+            x1, y1, x2, y2 = image_annotations[(image_filename, original_label)]
             cropped_img = image[y1:y2, x1:x2]
 
             h_original, w_original = cropped_img.shape[:2]
@@ -85,7 +86,7 @@ class VFN(DatasetBase):
 
     def _get_img_from_paths(self, text_file):
         
-        __annotations__text_file_path = '/content/drive/MyDrive/annotations.txt'
+        __annotations__text_file_path = '/content/ELLA/ELLA-main/data/annotations.txt'
         image_annotations = {}
         try:
             with open(__annotations__text_file_path, 'r') as f:
@@ -133,8 +134,8 @@ class VFN(DatasetBase):
         # hoặc được reset nếu cần xử lý nhiều file theo cách độc lập.
         # Nếu muốn ánh xạ liên tục trên nhiều file, giữ chúng không reset.
         # Nếu mỗi lần gọi _get_img_from_paths là độc lập, hãy reset ở đây:
-        self.label_mapping = {}
-        self.next_int_id = 0
+        label_mapping = {}
+        next_int_id = 0
         mapped_labels = []
         img_data = []
         if not os.path.exists(text_file):
@@ -152,11 +153,11 @@ class VFN(DatasetBase):
                     original_label_str = parts[1] # Nhãn gốc là string (ví dụ: "0", "1", "3")
 
                     # Bước 1: Ánh xạ nhãn string sang số nguyên liên tiếp
-                    if original_label_str not in self.label_mapping:
-                        self.label_mapping[original_label_str] = self.next_int_id
-                        self.next_int_id += 1
-                    
-                    current_mapped_label = self.label_mapping[original_label_str]
+                    if original_label_str not in label_mapping:
+                        label_mapping[original_label_str] = next_int_id
+                        next_int_id += 1
+
+                    current_mapped_label = label_mapping[original_label_str]
                     mapped_labels.append(current_mapped_label)
 
                     # Bước 2: Xây dựng đường dẫn đầy đủ đến ảnh
@@ -164,7 +165,7 @@ class VFN(DatasetBase):
                     full_image_path = os.path.join(self.base_folder_path, original_label_str, image_filename)
                     # Bước 3: Đọc ảnh
                     img = cv2.imread(full_image_path)
-                    img = self.resize_image(img, image_filename, original_label_str, image_annotations) 
+                    img = self.resize_image(img, image_filename, int(original_label_str), image_annotations)
                     if img is not None:
                         img_data.append(img)
                     else:

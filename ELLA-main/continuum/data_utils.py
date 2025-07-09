@@ -176,10 +176,10 @@ def create_task_composition(class_nums, num_tasks, nc_first_task, class_order, \
 
     # print(len(data[0]['trn']['y']), np.sum(img_num_per_cls[:5]))
     return task_labels, data
-def resize_image(image, image_filename, original_label_str, image_annotations, target_size=(224, 224)):
+def resize_image(image, image_filename, original_label, image_annotations, target_size=(224, 224)):
     if image is not None:
         # Lấy bounding box và cắt ảnh
-        x1, y1, x2, y2 = image_annotations[(image_filename, int(original_label_str))]
+        x1, y1, x2, y2 = image_annotations[(image_filename, original_label)]
         cropped_img = image[y1:y2, x1:x2]
 
         h_original, w_original = cropped_img.shape[:2]
@@ -249,12 +249,12 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
             parts = stripped_line.split('==')
             if len(parts) == 2:
                 image_filename = parts[0]
-                original_label = int(parts[1])
-                if original_label not in self.label_mapping:
-                    self.label_mapping[original_label] = self.next_int_id
-                    self.next_int_id += 1
+                original_label = parts[1]
+                if original_label not in label_mapping:
+                    label_mapping[original_label] = next_int_id
+                    next_int_id += 1
 
-                current_mapped_label = self.label_mapping[original_label]
+                current_mapped_label = label_mapping[original_label]
                 num_per_cls[current_mapped_label] += 1
 
                 
@@ -336,8 +336,8 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
 
             if len(parts) == 2:
                 image_filename = parts[0]
-                original_label = int(parts[1])
-                this_label = self.label_mapping[original_label]
+                original_label = parts[1]
+                this_label = label_mapping[original_label]
                 if this_label not in class_order:
                     continue
                 this_label_old = this_label
@@ -347,9 +347,9 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
                     continue
                 else:
                     clsanalysis[this_task][this_label - init_class[this_task]] += 1
-                    full_image_path = os.path.join(base_folder_image_path, str(original_label), image_filename)
+                    full_image_path = os.path.join(base_folder_image_path, original_label, image_filename)
                     this_image = cv2.imread(full_image_path)
-                    this_image = resize_image(this_image, image_filename, original_label, image_annotations)
+                    this_image = resize_image(this_image, image_filename, int(original_label), image_annotations)
                     data[this_task]['trn']['x'].append(this_image)
                     data[this_task]['trn']['y'].append(this_label_old) #- init_class[this_task])
                     num_per_cls_now[this_label] += 1
