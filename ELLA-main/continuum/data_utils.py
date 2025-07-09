@@ -179,7 +179,7 @@ def create_task_composition(class_nums, num_tasks, nc_first_task, class_order, \
 def resize_image(image, image_filename, original_label_str, image_annotations, target_size=(224, 224)):
     if image is not None:
         # Lấy bounding box và cắt ảnh
-        x1, y1, x2, y2 = image_annotations[(image_filename, original_label_str)]
+        x1, y1, x2, y2 = image_annotations[(image_filename, int(original_label_str))]
         cropped_img = image[y1:y2, x1:x2]
 
         h_original, w_original = cropped_img.shape[:2]
@@ -250,7 +250,7 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
             if len(parts) == 2:
                 image_filename = parts[0]
                 original_label = int(parts[1])
-                if original_label_str not in self.label_mapping:
+                if original_label not in self.label_mapping:
                     self.label_mapping[original_label] = self.next_int_id
                     self.next_int_id += 1
 
