@@ -174,8 +174,10 @@ def create_task_composition(class_nums, num_tasks, nc_first_task, class_order, \
 
     # print(len(data[0]['trn']['y']), np.sum(img_num_per_cls[:5]))
     return task_labels, data
+def resize_image(image, size=(224, 224)):
 
-def create_task_composition_vfn(class_nums, num_tasks, nc_first_task, class_order, \
+
+def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_first_task, class_order, \
                             training_file_path, base_folder_image_path, x_test, y_test, lt=False, ltio=False, fixed_order=True, imb_factor=0.01):
 
     print('nc_first_task: ', nc_first_task)
@@ -216,24 +218,22 @@ def create_task_composition_vfn(class_nums, num_tasks, nc_first_task, class_orde
 
     if lt:
         img_num_per_cls = class_distribution_table_vfn['lt']
-
-        # because the VFN74 is not balanced, maybe there is a class that has less images than that in the fixed distribution
-        # so we need to shuffle the class order until it is valid
-        while True:
-            current_order_is_valid = True
-            np.random.shuffle(class_order)
-            for i, class_id in enumerate(class_order):
-                acctual_count = num_per_cls[class_id]
-                if acctual_count < img_num_per_cls[i]:
-                    current_order_is_valid = False
-                    break
-            if current_order_is_valid:
-                break
-                
     else:
         img_num_per_cls = class_distribution_table_vfn['ltio']
+    # because the VFN74 is not balanced, maybe there is a class that has less images than that in the fixed distribution
+        # so we need to shuffle the class order until it is valid
+    while True:
+        current_order_is_valid = True
+        np.random.shuffle(class_order)
+        for i, class_id in enumerate(class_order):
+            acctual_count = num_per_cls[class_id]
+            if acctual_count < img_num_per_cls[i]:
+                current_order_is_valid = False
+                break
+        if current_order_is_valid:
+            break
 
-        
+    
     if nc_first_task is None:
         cpertask = np.array([class_nums // num_tasks] * num_tasks)
         for i in range(class_nums % num_tasks):

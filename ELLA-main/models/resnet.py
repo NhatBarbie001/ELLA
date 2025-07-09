@@ -238,10 +238,14 @@ class SupConResNet(nn.Module):
 
 class ContrastiveLR(nn.Module):
     """backbone + projection head"""
-    def __init__(self, dim_in=None, head='mlp', feat_dim=128, nclass=100, backbone='reduced_resnet18', input_size=(3,32,32)):
+    def __init__(self, dim_in=None, head='mlp', feat_dim=128, nclass=100, backbone='reduced_resnet18', datatype='cifar100'):
         super(ContrastiveLR, self).__init__()
         self.encoder = get_encoder(backbone, nclass)
         # Tự động xác định dim_in nếu không truyền vào
+        input_size = (3, 224, 224)  # VFN74
+        if datatype == 'cifar100':
+            input_size = (3, 32, 32)
+        
         if dim_in is None:
             with torch.no_grad():
                 dummy = torch.zeros(1, *input_size)
