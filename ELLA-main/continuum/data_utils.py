@@ -1,4 +1,6 @@
 #python imports
+import cv2
+
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
@@ -174,7 +176,49 @@ def create_task_composition(class_nums, num_tasks, nc_first_task, class_order, \
 
     # print(len(data[0]['trn']['y']), np.sum(img_num_per_cls[:5]))
     return task_labels, data
-def resize_image(image, size=(224, 224)):
+def resize_image(image, image_filename, original_label_str, image_annotations, target_size=(224, 224)):
+    if image is not None:
+        # Lấy bounding box và cắt ảnh
+        x1, y1, x2, y2 = image_annotations[(image_filename, original_label_str)]
+        cropped_img = image[y1:y2, x1:x2]
+
+        h_original, w_original = cropped_img.shape[:2]
+
+        # Tính toán tỷ lệ co giãn để ảnh vừa khớp với target_size mà không bị biến dạng
+        scale = min(target_size / h_original, target_size / w_original)
+
+        # Tính kích thước mới sau khi co giãn
+        new_w = int(w_original * scale)
+        new_h = int(h_original * scale)
+
+        # --- Lựa chọn phương pháp nội suy tối ưu cho chất lượng ảnh ---
+        if new_w < w_original or new_h < h_original:
+            # Nếu đang thu nhỏ ảnh (kích thước mới nhỏ hơn kích thước gốc)
+            interpolation_method = cv2.INTER_AREA
+        else:
+            # Nếu đang phóng to ảnh (kích thước mới lớn hơn kích thước gốc)
+            # Hoặc kích thước không đổi (bằng nhau)
+            interpolation_method = cv2.INTER_CUBIC # INTER_CUBIC cho chất lượng phóng to tốt nhất
+
+        # Co giãn ảnh với phương pháp nội suy đã chọn
+        resized_img = cv2.resize(cropped_img, (new_w, new_h), interpolation=interpolation_method)
+
+        # Bước 3: Thêm đệm để đạt kích thước 224x224
+        delta_h = target_size - new_h
+        delta_w = target_size - new_w
+
+        top = delta_h // 2
+        bottom = delta_h - top
+        left = delta_w // 2
+        right = delta_w - left
+
+        processed_img = cv2.copyMakeBorder(resized_img, top, bottom, left, right,
+                                        cv2.BORDER_CONSTANT, value=[0, 0, 0])
+
+        return processed_img
+    else:
+        print(f"!!!!Không thể tải ảnh '{image_filename}'. Trong phần tải ảnh train-vfn.")
+    return None
 
 
 def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_first_task, class_order, \
@@ -287,27 +331,28 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
     print(f"Đang đọc dữ liệu từ: {training_file_path}")
     with open(training_file_path, 'r') as f:
         for line in f:
-                stripped_line = line.strip()
-                parts = stripped_line.split('==')
+            stripped_line = line.strip()
+            parts = stripped_line.split('==')
 
-                if len(parts) == 2:
-                    image_filename = parts[0]
-                    original_label = int(parts[1])
-                    this_label = self.label_mapping[original_label]
-                    if this_label not in class_order:
-                        continue
-                    this_label_old = this_label
-                    this_label = class_order.index(this_label)
-                    this_task = (this_label >= cpertask_cumsum).sum()
-                    if num_per_cls_now[this_label] >= img_num_per_cls[this_label] and (ltio or lt):
-                        continue
-                    else:
-                        clsanalysis[this_task][this_label - init_class[this_task]] += 1
-                        full_image_path = os.path.join(base_folder_image_path, str(original_label), image_filename)
-                        this_image = cv2.imread(full_image_path)
-                        data[this_task]['trn']['x'].append(this_image)
-                        data[this_task]['trn']['y'].append(this_label_old) #- init_class[this_task])
-                        num_per_cls_now[this_label] += 1
+            if len(parts) == 2:
+                image_filename = parts[0]
+                original_label = int(parts[1])
+                this_label = self.label_mapping[original_label]
+                if this_label not in class_order:
+                    continue
+                this_label_old = this_label
+                this_label = class_order.index(this_label)
+                this_task = (this_label >= cpertask_cumsum).sum()
+                if num_per_cls_now[this_label] >= img_num_per_cls[this_label] and (ltio or lt):
+                    continue
+                else:
+                    clsanalysis[this_task][this_label - init_class[this_task]] += 1
+                    full_image_path = os.path.join(base_folder_image_path, str(original_label), image_filename)
+                    this_image = cv2.imread(full_image_path)
+                    this_image = resize_image(this_image, image_filename, original_label, image_annotations)
+                    data[this_task]['trn']['x'].append(this_image)
+                    data[this_task]['trn']['y'].append(this_label_old) #- init_class[this_task])
+                    num_per_cls_now[this_label] += 1
     print(f"Đọc dữ liệu từ: {training_file_path} Hoàn tất. Tổng số ảnh tải được: {len(data[0]['trn']['x'])}")
 
 
