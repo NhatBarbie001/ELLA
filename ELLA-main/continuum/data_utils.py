@@ -176,7 +176,7 @@ def create_task_composition(class_nums, num_tasks, nc_first_task, class_order, \
     return task_labels, data
 
 def create_task_composition_vfn(class_nums, num_tasks, nc_first_task, class_order, \
-                            x, y, x_test, y_test, lt=False, ltio=False, fixed_order=True, imb_factor=0.01):
+                            training_file_path, base_folder_image_path, x_test, y_test, lt=False, ltio=False, fixed_order=True, imb_factor=0.01):
 
     print('nc_first_task: ', nc_first_task)
     ####create order of classes and split tasks with certain class order####
@@ -195,14 +195,25 @@ def create_task_composition_vfn(class_nums, num_tasks, nc_first_task, class_orde
         np.random.shuffle(class_order)
 
     num_per_cls = np.zeros(class_nums)
-    for i in range(len(x)):
-        this_image = x[i]
-        this_label = int(y[i])
-        if this_label not in class_order:
-            continue
-        this_label = class_order.index(this_label)
-        this_task = (this_label >= cpertask_cumsum).sum()
-        num_per_cls[this_label] += 1
+    label_mapping = {}
+    next_int_id = 0
+    with open(training_file_path, 'r') as f:
+        for line in f:
+            stripped_line = line.strip()
+            parts = stripped_line.split('==')
+            if len(parts) == 2:
+                image_filename = parts[0]
+                original_label = int(parts[1])
+                if original_label_str not in self.label_mapping:
+                    self.label_mapping[original_label] = self.next_int_id
+                    self.next_int_id += 1
+
+                current_mapped_label = self.label_mapping[original_label]
+                num_per_cls[current_mapped_label] += 1
+
+                
+
+
     if lt:
         img_num_per_cls = class_distribution_table_vfn['lt']
 
@@ -255,7 +266,7 @@ def create_task_composition_vfn(class_nums, num_tasks, nc_first_task, class_orde
         data[tt]['tst'] = {'x': [], 'y': []}
         clsanalysis[tt] = np.zeros(cpertask[tt])
     #TRAIN ANALYSIS
-    num_per_cls = np.zeros(class_nums)
+    #num_per_cls = np.zeros(class_nums)
     # for i in range(len(x)):
     #     this_image = x[i]
     #     this_label = int(y[i])
@@ -273,23 +284,51 @@ def create_task_composition_vfn(class_nums, num_tasks, nc_first_task, class_orde
     # print('class order: ', class_order)
     # print('img per cls: ', img_num_per_cls)
     #ALL or Train
-    for i in range(len(x)):
-        this_image = x[i]
-        this_label = int(y[i])
-        if this_label not in class_order:
-            continue
-        # If shuffling is false, it won't change the class number
-        this_label_old = this_label
-        this_label = class_order.index(this_label)
-        # add it to the corresponding split
-        this_task = (this_label >= cpertask_cumsum).sum()
-        if num_per_cls_now[this_label] >= img_num_per_cls[this_label] and (ltio or lt):
-            continue
-        else:
-            clsanalysis[this_task][this_label - init_class[this_task]] += 1
-            data[this_task]['trn']['x'].append(this_image)
-            data[this_task]['trn']['y'].append(this_label_old) #- init_class[this_task])
-            num_per_cls_now[this_label] += 1
+
+    with open(training_file_path, 'r') as f:
+        for line in f:
+                stripped_line = line.strip()
+                parts = stripped_line.split('==')
+
+                if len(parts) == 2:
+                    image_filename = parts[0]
+                    original_label = int(parts[1])
+                    this_label = self.label_mapping[original_label]
+                    if this_label not in class_order:
+                        continue
+                    this_label_old = this_label
+                    this_label = class_order.index(this_label)
+                    this_task = (this_label >= cpertask_cumsum).sum()
+                    if num_per_cls_now[this_label] >= img_num_per_cls[this_label] and (ltio or lt):
+                        continue
+                    else:
+                        clsanalysis[this_task][this_label - init_class[this_task]] += 1
+                        full_image_path = os.path.join(base_folder_image_path, str(original_label), image_filename)
+                        this_image = cv2.imread(full_image_path)
+                        data[this_task]['trn']['x'].append(this_image)
+                        data[this_task]['trn']['y'].append(this_label_old) #- init_class[this_task])
+                        num_per_cls_now[this_label] += 1
+
+
+
+
+    # for i in range(len(x)):
+    #     this_image = x[i]
+    #     this_label = int(y[i])
+    #     if this_label not in class_order:
+    #         continue
+    #     # If shuffling is false, it won't change the class number
+    #     this_label_old = this_label
+    #     this_label = class_order.index(this_label)
+    #     # add it to the corresponding split
+    #     this_task = (this_label >= cpertask_cumsum).sum()
+    #     if num_per_cls_now[this_label] >= img_num_per_cls[this_label] and (ltio or lt):
+    #         continue
+    #     else:
+    #         clsanalysis[this_task][this_label - init_class[this_task]] += 1
+    #         data[this_task]['trn']['x'].append(this_image)
+    #         data[this_task]['trn']['y'].append(this_label_old) #- init_class[this_task])
+    #         num_per_cls_now[this_label] += 1
     # print('num per cls now: ', num_per_cls_now)
     # ALL OR TEST
     for i in range(len(x_test)):
