@@ -86,7 +86,7 @@ class VFN(DatasetBase):
 
     def _get_img_from_paths(self, text_file):
         
-        __annotations__text_file_path = '/content/ELLA/ELLA-main/data/annotations.txt'
+        __annotations__text_file_path = '/kaggle/working/ELLA/ELLA-main/data/annotations.txt'
         image_annotations = {}
         try:
             with open(__annotations__text_file_path, 'r') as f:
@@ -191,11 +191,14 @@ class VFN(DatasetBase):
         
         # Initialize the base folder path of the dataset
         # you should change this path to the location where you have stored the dataset
-        self.base_folder_path = '/content/vfn_1_0/vfn_1_0/Images'
+        #self.base_folder_path = '/content/vfn_1_0/vfn_1_0/Images'
+        self.base_folder_path = '/kaggle/input/vfn82-foodimages/vfn_1_0/vfn_1_0/Images'
         dataset = 'vfn'
         num_tasks = params.num_tasks
-        self.train_file = '/content/ELLA/ELLA-main/data/vfn_longtailed_train.txt'
-        self.test_file = '/content/ELLA/ELLA-main/data/vfn_longtailed_test.txt'
+        # self.train_file = '/content/ELLA/ELLA-main/data/vfn_longtailed_train.txt'
+        # self.test_file = '/content/ELLA/ELLA-main/data/vfn_longtailed_test.txt'
+        self.train_file = '/kaggle/working/ELLA/ELLA-main/data/vfn_longtailed_train.txt'
+        self.test_file = '/kaggle/working/ELLA/ELLA-main/data/vfn_longtailed_test.txt'
         nc_first_task = params.nc_first_task
         super(VFN, self).__init__(dataset, scenario, num_tasks, params.num_runs, params)
 
