@@ -217,14 +217,14 @@ def resize_image(image, image_filename, original_label, image_annotations, targe
 
         return processed_img
     else:
-        print(f"!!!!Không thể tải ảnh '{image_filename}'. Trong phần tải ảnh train-vfn.")
+        print(f"!!!!Cant download '{image_filename}'. On download vfn training data.")
     return None
 
 
 def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_first_task, class_order, \
                             training_file_path, base_folder_image_path, x_test, y_test, lt=False, ltio=False, fixed_order=True, imb_factor=0.01):
 
-    print('nc_first_task: ', nc_first_task)
+    print('num_classes_first_task: ', nc_first_task)
     ####create order of classes and split tasks with certain class order####
     task_labels = []
     clsanalysis={}
@@ -289,7 +289,7 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
         cpertask = np.array([nc_first_task]+[remaining_classes // (num_tasks - 1)] * (num_tasks - 1))
         for i in range(remaining_classes % (num_tasks - 1)):
             cpertask[i + 1] += 1
-        print('cpertask: ', cpertask)
+        print('class_pertask: ', cpertask)
     assert class_nums == cpertask.sum(), "something is wrong, split doesnt add up"
     
     tt_offset = 0 
@@ -328,7 +328,7 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
     # print('class order: ', class_order)
     # print('img per cls: ', img_num_per_cls)
     #ALL or Train
-    print(f"Đang đọc dữ liệu từ: {training_file_path}")
+    print(f"Reading data from: {training_file_path}")
     with open(training_file_path, 'r') as f:
         for line in f:
             stripped_line = line.strip()
@@ -357,7 +357,7 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
     tot  = 0
     for i in range(0, num_tasks):
         tot += len(data[i]['trn']['x'])
-    print(f"Đọc dữ liệu từ: {training_file_path} Hoàn tất. Tổng số ảnh tải được: {tot}")
+    print(f"Reading data from: {training_file_path} completed. Total images downloaded: {tot}")
 
 
 
@@ -408,6 +408,7 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
         # print('unique in test task: ',unique(data[i]['tst']['y']))
         # print('\n')
         test_dist.append(len(data[i]['tst']['y']))
+    print('class order: ', class_order)
     print('training distribution: ', train_dist)
     print('test distribtuion: ', test_dist)
 

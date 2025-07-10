@@ -182,9 +182,9 @@ class VFN(DatasetBase):
         else:
             img_data = np.array([]) # Trả về mảng rỗng nếu không có ảnh nào được tải
 
-        print(f"Hoàn tất tải ảnh từ {text_file}. Tổng số ảnh tải được: {len(img_data)}")
-        print(f"Ánh xạ nhãn cuối cùng: {label_mapping}")
-        
+        print(f"Successfully download data from {text_file}. Total images: {len(img_data)}")
+        #print(f"Final label mapping: {label_mapping}")
+
         return img_data, mapped_labels, image_annotations
 
     def __init__(self, scenario, params):
@@ -201,7 +201,7 @@ class VFN(DatasetBase):
 
     def download_load(self):
         # because vfn is not a torchvision dataset and vfn is 224x224 pixels (so heavy), load very slowly
-        # we dont load all the images at once, like cifar100 or imagenet then dive into fixed distribution
+        # we dont load all the images at once, like cifar100 or imagenet then dive into the fixed distribution
         # instead, we load the images following the fixed distribution 
         # training data set will be loaded at create_task_composition_vfn()
 
