@@ -103,7 +103,7 @@ class ResNet(nn.Module):
         out = self.layer4(out)
         if self.nclasses == 100: #cifar100, imagenet100 (subset)
             out = avg_pool2d(out, 4)
-        elif self.classes == 74: #vfn74
+        elif self.nclasses == 74: #vfn74
             out = avg_pool2d(out, 28) 
         out = out.view(out.size(0), -1)
         return out

@@ -176,7 +176,7 @@ def create_task_composition(class_nums, num_tasks, nc_first_task, class_order, \
 
     # print(len(data[0]['trn']['y']), np.sum(img_num_per_cls[:5]))
     return task_labels, data
-def resize_image(image, image_filename, original_label, image_annotations, target_size=(224, 224)):
+def resize_image(self, image, image_filename, original_label, image_annotations, target_size=224):
     if image is not None:
         # Lấy bounding box và cắt ảnh
         x1, y1, x2, y2 = image_annotations[(image_filename, original_label)]

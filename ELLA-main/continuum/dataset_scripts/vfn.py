@@ -35,14 +35,14 @@ class VFN(DatasetBase):
     # # 	img_data = np.array(img_data)
     
     # # 	return img_data, labels
-    def calculate_bbox_area(x1, y1, x2, y2):
+    def calculate_bbox_area(self, x1, y1, x2, y2):
         """Tính toán diện tích của bounding box."""
         # Đảm bảo chiều rộng và chiều cao không âm
         width = max(0, x2 - x1)
         height = max(0, y2 - y1)
         return width * height
 
-    def resize_image(self, image, image_filename, original_label, image_annotations, target_size=(224, 224)):
+    def resize_image(self, image, image_filename, original_label, image_annotations, target_size=224):
         if image is not None:
             # Lấy bounding box và cắt ảnh
             x1, y1, x2, y2 = image_annotations[(image_filename, original_label)]
@@ -109,6 +109,9 @@ class VFN(DatasetBase):
                             # Tạo khóa là một tuple (tên file, label)
                             key = (image_filename, label)
                             # Giá trị là một tuple các tọa độ
+                            # if image_filename == '767451.jpg':
+                            #     print(line)
+                            #     print(f"Processing image: {image_filename}, Coordinates: ({x1}, {y1}, {x2}, {y2})")
                             value = (x1, y1, x2, y2)
                             current_area = self.calculate_bbox_area(x1, y1, x2, y2)
                             if key in image_annotations:
@@ -180,7 +183,7 @@ class VFN(DatasetBase):
             img_data = np.array([]) # Trả về mảng rỗng nếu không có ảnh nào được tải
 
         print(f"Hoàn tất tải ảnh từ {text_file}. Tổng số ảnh tải được: {len(img_data)}")
-        print(f"Ánh xạ nhãn cuối cùng: {self.label_mapping}")
+        print(f"Ánh xạ nhãn cuối cùng: {label_mapping}")
         
         return img_data, mapped_labels, image_annotations
 
@@ -218,9 +221,8 @@ class VFN(DatasetBase):
             for labels in range(len(self.task_labels)):
                 x_test, y_test = np.asarray(self.data[labels]['tst']['x']), np.asarray(self.data[labels]['tst']['y'])
                 self.test_set.append((x_test, y_test))
-
-            else:
-                raise Exception('wrong scenario')
+        else:
+            raise Exception('wrong scenario')
 
     def new_task(self, cur_task, **kwargs):
         if self.scenario == 'ni':
