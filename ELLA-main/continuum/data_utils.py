@@ -176,7 +176,7 @@ def create_task_composition(class_nums, num_tasks, nc_first_task, class_order, \
 
     # print(len(data[0]['trn']['y']), np.sum(img_num_per_cls[:5]))
     return task_labels, data
-def resize_image(self, image, image_filename, original_label, image_annotations, target_size=224):
+def resize_image(image, image_filename, original_label, image_annotations, target_size=224):
     if image is not None:
         # Lấy bounding box và cắt ảnh
         x1, y1, x2, y2 = image_annotations[(image_filename, original_label)]
@@ -353,7 +353,11 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
                     data[this_task]['trn']['x'].append(this_image)
                     data[this_task]['trn']['y'].append(this_label_old) #- init_class[this_task])
                     num_per_cls_now[this_label] += 1
-    print(f"Đọc dữ liệu từ: {training_file_path} Hoàn tất. Tổng số ảnh tải được: {len(data[0]['trn']['x'])}")
+
+    tot  = 0
+    for i in range(0, num_tasks):
+        tot += len(data[i]['trn']['x'])
+    print(f"Đọc dữ liệu từ: {training_file_path} Hoàn tất. Tổng số ảnh tải được: {tot}")
 
 
 
