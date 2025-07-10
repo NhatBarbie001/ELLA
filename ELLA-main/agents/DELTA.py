@@ -109,9 +109,9 @@ class DELTA(ContinualLearner):
 
 
 
-
-                        features = torch.cat([self.model.forward(combined_batch).unsqueeze(1), self.model.forward(combined_batch_aug).unsqueeze(1)], dim=1)
-                        out_stage1 = self.model.logits(torch.cat([combined_batch, combined_batch_aug]))
+                        with torch.cuda.amp.autocast():
+                            features = torch.cat([self.model.forward(combined_batch).unsqueeze(1), self.model.forward(combined_batch_aug).unsqueeze(1)], dim=1)
+                            out_stage1 = self.model.logits(torch.cat([combined_batch, combined_batch_aug]))
 
                         # loss này dùng cho học biểu diễn 
                         loss_stage1 = self.criterion(features, combined_labels)
@@ -123,9 +123,17 @@ class DELTA(ContinualLearner):
 
 
                         losses.update(loss, batch_y.size(0))
+
+                        scaler = torch.cuda.amp.GradScaler()
                         self.opt.zero_grad()
-                        loss.backward()
-                        self.opt.step()
+                        scaler.scale(loss).backward()
+                        scaler.step(self.opt)
+                        scaler.update()
+
+                        # Giải phóng bộ nhớ luôn
+                        del features #,out_stage1, loss_stage1, loss_stage2_from1
+                        torch.cuda.empty_cache()
+
 
                         #stage 2
                         
@@ -142,12 +150,15 @@ class DELTA(ContinualLearner):
                         mem_y = maybe_cuda(mem_y, self.cuda)
                         combined_batch = torch.cat((mem_x, batch_x))
                         combined_labels = torch.cat((mem_y, batch_y))
-                        out = self.model.logits(combined_batch)
-                        loss_stage2 = loss_func(out, combined_labels)
+                        with torch.cuda.amp.autocast():
+                            out = self.model.logits(combined_batch)
+                            loss_stage2 = loss_func(out, combined_labels)
                         # losses_stage2.update(loss_stage2, batch_y.size(0))
                         stage2_opt.zero_grad()
-                        loss_stage2.backward()
-                        stage2_opt.step()
+                        scaler.scale(loss_stage2).backward() # Sử dụng cùng scaler
+                        scaler.step(stage2_opt)
+                        scaler.update()
+                        
 
                 # # Stage 2
                 # for j in range(self.mem_iters):
