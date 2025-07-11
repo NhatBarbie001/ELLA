@@ -100,7 +100,7 @@ def create_task_composition(class_nums, num_tasks, nc_first_task, class_order, \
             print('lt?')
             dist = 'exp'
             img_num_per_cls = class_distribution_table['lt']
-            #np.random.shuffle(img_num_per_cls)
+            np.random.shuffle(img_num_per_cls)
         elif ltio:
             print('ltio?')
             img_num_per_cls = class_distribution_table['ltio']
@@ -263,7 +263,7 @@ def create_task_composition_vfn(image_annotations, class_nums, num_tasks, nc_fir
 
     if lt:
         img_num_per_cls = class_distribution_table_vfn['lt']
-        #np.random.shuffle(img_num_per_cls)
+        np.random.shuffle(img_num_per_cls)
     else:
         img_num_per_cls = class_distribution_table_vfn['ltio']
     # because the VFN74 is not balanced, maybe there is a class that has less images than that in the fixed distribution

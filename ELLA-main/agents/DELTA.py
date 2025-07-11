@@ -131,7 +131,7 @@ class DELTA(ContinualLearner):
                         scaler.update()
 
                         # Giải phóng bộ nhớ luôn
-                        del features #,out_stage1, loss_stage1, loss_stage2_from1
+                        del features, out_stage1, loss_stage1, loss_stage2_from1, loss, 
                         torch.cuda.empty_cache()
 
 
@@ -158,7 +158,8 @@ class DELTA(ContinualLearner):
                         scaler.scale(loss_stage2).backward() # Sử dụng cùng scaler
                         scaler.step(stage2_opt)
                         scaler.update()
-                        
+                        del mem_x, mem_y, combined_batch, combined_labels, out, loss_stage2
+                        torch.cuda.empty_cache()
 
                 # # Stage 2
                 # for j in range(self.mem_iters):
