@@ -47,7 +47,7 @@ Detailed descriptions of options can be found in [general_main.py](general_main.
 ### Sample commands to run algorithms on Split-CIFAR100
 ```shell
 #DELTA
-python general_main.py --data cifar100 --cl_type nc --agent DELTA --retrieve random  --update random --mem_size 1000 --head None --temp 0.09 --verbose False --num_tasks 20 --lt True --eps_mem_batch 32 --nc_first_task 5 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
+python general_main.py --data cifar100 --agent ELLA --ELLA_alpha 0.7 --ELLA_beta 0.1 --mem_size 1000 --num_tasks 20 --cl_type nc --retrieve random  --update random --head None --temp 0.09 --verbose False --lt True --eps_mem_batch 32 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
 ```
 
 ### Other existing methods as part of the repository
@@ -68,26 +68,19 @@ python general_main.py --data cifar100 --cl_type nc --agent ER --update ASER --r
 python general_main.py --data cifar100 --cl_type nc --agent SCR --retrieve random --update random --mem_size 5000 --head mlp --temp 0.07 --eps_mem_batch 100 --num_tasks 20 --lt True --eps_mem_batch 32 --nc_first_task 5 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
 ```
 
-### Sample command to experiment with MULTI-EXEMPLAR PAIRING
-```shell
-#DELTA
-python general_main.py --data cifar100 --cl_type nc --agent DELTA --retrieve random  --update random --mem_size 1000 --head None --temp 0.09 --verbose False --num_tasks 20 --lt True --eps_mem_batch 32 --num_exe 10 --nc_first_task 5 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
-
-```
-
 ## Repo Structure & Description
     ├──agents                       #Files for different algorithms
         ├──base.py                      #Abstract class for algorithms
-        ├──DELTA.py                     #File for our method - DELTA
+        ├──ELLA.py                     #File for our method - ELLA
         ├──exp_replay.py                #File for ER, MIR and GSS
         ├──scr.py                       #File for SCR
     
     ├──continuum                    #Files for create the data stream objects
         ├──dataset_scripts              #Files for processing each specific dataset
             ├──dataset_base.py              #Abstract class for dataset
-            ├──cifar100.py                  #File for CIFAR100
+            ├──cifar100.py                  #File for making CIFAR100-LT
             ├──imagenet_subset.py           #File for Imagenet subset
-            ├──vfn.py                       #File for VFN
+            ├──vfn.py                       #File for making VFN-LT
 
         ├──continuum.py             
         ├──data_utils.py
@@ -113,24 +106,13 @@ python general_main.py --data cifar100 --cl_type nc --agent DELTA --retrieve ran
 
 If you use this paper/code in your research, please consider citing us:
 
-**DELTA: Decoupling Long-Tailed Online Continual Learning**
 
-[Accepted at CVPR2024 Workshops](https://openaccess.thecvf.com/content/CVPR2024W/CLVISION/papers/Raghavan_DELTA_Decoupling_Long-Tailed_Online_Continual_Learning_CVPRW_2024_paper.pdf).
-```
-@inproceedings{sraghavan2024delta,
-  title={DELTA: Decoupling Long-Tailed Online Continual Learning},
-  author={Raghavan, Siddeshwar and He, Jiangpeng and Zhu, Fengqing},
-  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
-  year={2024}
-}
-```
 
 
 ## Contact
-- [Siddeshwar Raghavan](https://siddeshwar-raghavan.github.io) 
-raghav12@purdue.edu
+
 
 
 
 ## Note
-Implementation is based on the repository (https://github.com/RaptorMai/online-continual-learning). 
+Implementation is based on the repository (https://github.com/RaptorMai/online-continual-learning).
