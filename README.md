@@ -50,8 +50,8 @@ Detailed descriptions of options can be found in [general_main.py](general_main.
 python general_main.py --data cifar100 --agent ELLA --ELLA_alpha 0.7 --ELLA_beta 0.1 --mem_size 1000 --num_tasks 20 --cl_type nc --retrieve random  --update random --head None --temp 0.09 --verbose False --lt True --eps_mem_batch 32 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
 ```
 ```shell
-#ELLA || 10tasks || 1k memory || ELLA_alpha_0.7, ELLA_beta_0.1
-python general_main.py --data cifar100 --agent ELLA --ELLA_alpha 0.7 --ELLA_beta 0.1 --mem_size 1000 --num_tasks 10 --cl_type nc --retrieve random  --update random --head None --temp 0.09 --verbose False --lt True --eps_mem_batch 32 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
+#ELLA || 10tasks || 1k memory || ELLA_alpha_0.7, ELLA_beta_0.05
+python general_main.py --data cifar100 --agent ELLA --ELLA_alpha 0.7 --ELLA_beta 0.05 --mem_size 1000 --num_tasks 10 --cl_type nc --retrieve random  --update random --head None --temp 0.09 --verbose False --lt True --eps_mem_batch 32 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
 ```
 ### Sample commands to run algorithms on VFN-LT
 ```shell
@@ -59,8 +59,8 @@ python general_main.py --data cifar100 --agent ELLA --ELLA_alpha 0.7 --ELLA_beta
 python general_main.py --data vfn --agent ELLA --ELLA_alpha 0.7 --ELLA_beta 0.1 --mem_size 1000 --num_tasks 15 --cl_type nc --retrieve random  --update random --head None --temp 0.09 --nc_first_task 4 --verbose False --lt True --eps_mem_batch 32 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
 ```
 ```shell
-#ELLA || 7tasks || 1k memory || ELLA_alpha_0.7, ELLA_beta_0.1
-python general_main.py --data vfn --agent ELLA --ELLA_alpha 0.7 --ELLA_beta 0.1 --mem_size 1000 --num_tasks 7 --cl_type nc --retrieve random  --update random --head None --temp 0.09 --nc_first_task 14 --verbose False --lt True --eps_mem_batch 32 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
+#ELLA || 7tasks || 1k memory || ELLA_alpha_0.7, ELLA_beta_0.05
+python general_main.py --data vfn --agent ELLA --ELLA_alpha 0.7 --ELLA_beta 0.05 --mem_size 1000 --num_tasks 7 --cl_type nc --retrieve random  --update random --head None --temp 0.09 --nc_first_task 14 --verbose False --lt True --eps_mem_batch 32 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
 ```
 
 ### Other existing methods as part of the repository
