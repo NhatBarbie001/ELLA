@@ -79,6 +79,9 @@ python general_main.py --data cifar100 --cl_type nc --agent ER --update ASER --r
 
 #SCR
 python general_main.py --data cifar100 --cl_type nc --agent SCR --retrieve random --update random --mem_size 5000 --head mlp --temp 0.07 --eps_mem_batch 100 --num_tasks 20 --lt True --eps_mem_batch 32 --nc_first_task 5 --randomize_seed True --cuda_device 4 --write_file False  --file_name 'test.txt'  --randomize_seed True
+
+#DELTA
+python general_main.py --data cifar100 --agent DELTA --mem_size 1000 --num_tasks 20 --cl_type nc --retrieve random  --update random --head None --temp 0.09 --verbose False --lt True --eps_mem_batch 32 --randomize_seed True --cuda_device 0 --write_file False  --file_name 'test.txt'  --randomize_seed True
 ```
 
 ## Repo Structure & Description
