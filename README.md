@@ -15,7 +15,9 @@ Official repository of
 ----
 
 Installing packages
+
 ```sh
+pip install -r requirements.txt
 pip install kornia
 ```
 
